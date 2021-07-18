@@ -13,6 +13,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var wallNode:SKNode!
     var bird:SKSpriteNode!
     
+    
     // 衝突判定カテゴリー ↓追加
     let birdCategory: UInt32 = 1 << 0       // 0...00001
     let groundCategory: UInt32 = 1 << 1     // 0...00010
@@ -218,8 +219,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             let itemTexture = SKTexture(imageNamed: "coin")
             let itemNode = SKSpriteNode(texture: itemTexture)
-            itemNode.position = CGPoint(x: upper.size.width + birdSize.width / 2, y: self.frame.height / 2 + 110)
-            itemNode.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: upper.size.width, height: self.frame.size.height))
+            itemNode.position = CGPoint(x: upper.size.width + birdSize.width / 2 - 120, y: self.frame.height / 2 + 110)
+            itemNode.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: itemNode.size.width, height: itemNode.size.height))
             itemNode.physicsBody?.isDynamic = false
             itemNode.physicsBody?.categoryBitMask = self.itemCategory
             itemNode.physicsBody?.contactTestBitMask = self.birdCategory
@@ -316,7 +317,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 print("ItemScoreUp")
                 itemScore += 1
                 itemScoreLabelNode.text = "ItemScore:\(itemScore)"
-            self.run(action)
+                
+                self.run(action)
+              if contact.bodyA.categoryBitMask == itemCategory {
+                
+                contact.bodyA.node?.removeFromParent()
+            } else {
+                
+                contact.bodyB.node?.removeFromParent()
+            
+            }
             
             var bestScore = userDefaults.integer(forKey: "BEST")
             if score > bestScore {
@@ -344,7 +354,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func restart() {
         score = 0
+        itemScore = 0
         scoreLabelNode.text = "Score:\(score)"
+        itemScoreLabelNode.text = "ItemScore:\(itemScore)"
         
         bird.position = CGPoint(x: self.frame.size.width * 0.2, y:self.frame.size.height * 0.7)
         bird.physicsBody?.velocity = CGVector.zero
